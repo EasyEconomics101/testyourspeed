@@ -3,20 +3,998 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Economics Speed Test Topic Selector</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Economics Quiz Speed Test</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .quiz-intro {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .topic-selection {
+            margin: 20px 0;
+        }
+
+        .topic-selector {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: 5px;
+            font-size: 16px;
+            color: var(--dark-color);
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .start-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .start-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .quiz-container {
+            display: none;
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .question-count, .score {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background-color: var(--accent-color);
+            transition: width 0.1s linear;
+        }
+
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px;
+            background-color: var(--light-color);
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background-color: #e3e8ec;
+            border-color: var(--primary-color);
+        }
+
+        .option.correct {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .option.incorrect {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .option.disabled {
+            pointer-events: none;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .results h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .restart-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .upgrade-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upgrade-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .upgrade-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .close-upgrade {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Styling for disabled topics */
+        option.disabled {
+            color: #bdc3c7;
+            font-style: italic;
+        }
+
+        @media (min-width: 768px) {
+            .options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Economics Speed Test</h1>
-        <select id="topicSelect">
-            <option value="">Select a Topic</option>
-            <option value="https://testyourspeed.github.io/microeconomics/">Microeconomics</option>
-            <option value="https://testyourspeed.github.io/macroeconomics/">Macroeconomics</option>
-            <option value="https://testyourspeed.github.io/internationaleconomics/">International Economics</option>
-        </select>
-        <button id="goButton" disabled>Go to Test</button>
+        <header>
+            <h1>Economics Quiz Speed Test</h1>
+            <p>Test your knowledge with quick-fire economics questions!</p>
+        </header>
+
+        <div class="quiz-intro">
+            <h2>Ready to test your economics knowledge?</h2>
+            <p>Select a topic and answer 10 random questions. You have 20 seconds for each question!</p>
+            
+            <div class="topic-selection">
+                <label for="topic">Select Topic:</label>
+                <select id="topic" class="topic-selector">
+                    <option value="" disabled selected>Choose a topic...</option>
+                    <option value="micro">Microeconomics</option>
+                    <option value="macro">Macroeconomics</option>
+                    <option value="international">International Economics</option>
+                    <option value="behavioral" disabled>Behavioral Economics</option>
+                    <option value="development" disabled>Development Economics</option>
+                    <option value="environmental" disabled>Environmental Economics</option>
+                    <option value="financial" disabled>Financial Economics</option>
+                </select>
+            </div>
+            
+            <button id="start-btn" class="start-btn" disabled>Start Quiz</button>
+        </div>
+
+        <div id="quiz-container" class="quiz-container">
+            <div class="quiz-header">
+                <div class="question-count">Question <span id="current">1</span>/<span id="total">10</span></div>
+                <div class="score">Score: <span id="score">0</span></div>
+            </div>
+            
+            <div class="timer-container">
+                <div id="timer-bar" class="timer-bar"></div>
+            </div>
+            
+            <div id="question" class="question"></div>
+            
+            <div id="options" class="options"></div>
+        </div>
+
+        <div id="results" class="results">
+            <h2>Quiz Complete!</h2>
+            <div class="score-display">Your score: <span id="final-score">0</span> out of 10</div>
+            <button id="restart-btn" class="restart-btn">Take Another Quiz</button>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <div id="upgrade-modal" class="upgrade-modal">
+        <div class="upgrade-content">
+            <h2>UPGRADE TO PRO</h2>
+            <p>This topic is only available in the PRO version.</p>
+            <button id="close-upgrade" class="close-upgrade">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const topicSelector = document.getElementById('topic');
+        const startButton = document.getElementById('start-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const quizIntro = document.querySelector('.quiz-intro');
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options');
+        const currentQuestionElement = document.getElementById('current');
+        const totalQuestionsElement = document.getElementById('total');
+        const scoreElement = document.getElementById('score');
+        const timerBar = document.getElementById('timer-bar');
+        const resultsContainer = document.getElementById('results');
+        const finalScoreElement = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-btn');
+        const upgradeModal = document.getElementById('upgrade-modal');
+        const closeUpgradeButton = document.getElementById('close-upgrade');
+
+        // Quiz state
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+        let timeLeft;
+        let questions = [];
+        let answered = false;
+
+        // Question Banks
+        const questionBanks = {
+            micro: [
+                {
+                    question: "Which of the following best defines 'opportunity cost'?",
+                    options: [
+                        "The monetary cost of a purchase",
+                        "The value of the next best alternative foregone",
+                        "The cost of economic opportunities",
+                        "The total cost of all alternatives"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What happens to the demand curve when consumer income increases for a normal good?",
+                    options: [
+                        "Shifts to the right",
+                        "Shifts to the left",
+                        "Moves along the curve",
+                        "Remains unchanged"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "Which of the following market structures has the fewest sellers?",
+                    options: [
+                        "Perfect competition",
+                        "Monopolistic competition",
+                        "Oligopoly",
+                        "Monopoly"
+                    ],
+                    answer: 3
+                },
+                {
+                    question: "When marginal cost equals marginal revenue, what is maximized?",
+                    options: [
+                        "Profits",
+                        "Sales",
+                        "Market share",
+                        "Consumer surplus"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "What is price elasticity of demand a measure of?",
+                    options: [
+                        "How prices change over time",
+                        "How responsive quantity demanded is to price changes",
+                        "How fast markets reach equilibrium",
+                        "How responsive suppliers are to price changes"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "Which of the following is NOT a characteristic of a perfectly competitive market?",
+                    options: [
+                        "Many buyers and sellers",
+                        "Homogeneous products",
+                        "Product differentiation",
+                        "Free entry and exit"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is a normal good?",
+                    options: [
+                        "A good with price elasticity equal to one",
+                        "A good whose demand increases when income increases",
+                        "A good with constant demand regardless of price",
+                        "A good that has a substitute"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is the law of diminishing marginal utility?",
+                    options: [
+                        "As more units of a good are consumed, the total utility decreases",
+                        "As production increases, costs eventually rise",
+                        "As more units of a good are consumed, the additional satisfaction decreases",
+                        "As income increases, consumption decreases"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "In monopolistic competition, firms compete primarily through:",
+                    options: [
+                        "Price manipulation",
+                        "Product differentiation",
+                        "Supply restriction",
+                        "Collusion"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is deadweight loss?",
+                    options: [
+                        "The cost of government regulation",
+                        "The economic loss due to taxes",
+                        "The reduction in economic efficiency due to market failure",
+                        "The loss of market equilibrium"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What happens to the supply curve when technology improves?",
+                    options: [
+                        "Shifts to the right",
+                        "Shifts to the left",
+                        "Moves along the curve",
+                        "Becomes more inelastic"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "Which of the following is an example of a positive externality?",
+                    options: [
+                        "Air pollution from factories",
+                        "Education leading to a more skilled workforce",
+                        "Smoking in public places",
+                        "Traffic congestion"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is the difference between accounting profit and economic profit?",
+                    options: [
+                        "There is no difference",
+                        "Economic profit includes implicit costs",
+                        "Accounting profit includes opportunity costs",
+                        "Economic profit excludes explicit costs"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "When a firm is price taker, its demand curve is:",
+                    options: [
+                        "Upward sloping",
+                        "Downward sloping",
+                        "Horizontal",
+                        "Vertical"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is a production possibility frontier used to illustrate?",
+                    options: [
+                        "Maximum output combinations given resources and technology",
+                        "The relationship between price and quantity",
+                        "How profits change with different production levels",
+                        "The effect of taxes on production"
+                    ],
+                    answer: 0
+                }
+            ],
+            macro: [
+                {
+                    question: "What does GDP stand for?",
+                    options: [
+                        "General Domestic Production",
+                        "Gross Domestic Product",
+                        "Global Development Process",
+                        "Government Deficit Plan"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "Which of the following is NOT a component of GDP?",
+                    options: [
+                        "Consumption",
+                        "Investment",
+                        "Stock market values",
+                        "Government spending"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is inflation?",
+                    options: [
+                        "Increase in the money supply",
+                        "Increase in interest rates",
+                        "General increase in price levels",
+                        "Increase in economic growth"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "Which policy would most likely be used to combat recession?",
+                    options: [
+                        "Increasing interest rates",
+                        "Reducing government spending",
+                        "Increasing taxes",
+                        "Increasing government spending"
+                    ],
+                    answer: 3
+                },
+                {
+                    question: "What is the natural rate of unemployment?",
+                    options: [
+                        "Zero unemployment",
+                        "The unemployment rate when the economy is in equilibrium",
+                        "The highest historical unemployment rate",
+                        "The unemployment rate during economic booms"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "Who typically implements monetary policy?",
+                    options: [
+                        "President/Prime Minister",
+                        "Legislature/Parliament",
+                        "Central Bank",
+                        "Treasury/Finance Ministry"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is stagflation?",
+                    options: [
+                        "High growth with low inflation",
+                        "Low unemployment with high output",
+                        "High inflation with high unemployment and low growth",
+                        "Low inflation with low unemployment"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is fiscal policy?",
+                    options: [
+                        "Policies regarding international trade",
+                        "Government spending and taxation decisions",
+                        "Central bank's management of interest rates",
+                        "Regulations on financial institutions"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What does the Phillips Curve traditionally show?",
+                    options: [
+                        "The relationship between interest rates and inflation",
+                        "The relationship between GDP and unemployment",
+                        "The relationship between inflation and unemployment",
+                        "The relationship between wages and productivity"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is the multiplier effect?",
+                    options: [
+                        "When government spending increases GDP by more than the amount spent",
+                        "When tax cuts reduce government revenue",
+                        "When interest rate changes affect investment",
+                        "When inflation reduces purchasing power"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "What is NOT typically used to measure a country's economic development?",
+                    options: [
+                        "GDP per capita",
+                        "Human Development Index",
+                        "Stock market indices",
+                        "Life expectancy"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is the business cycle?",
+                    options: [
+                        "The lifecycle of companies from startup to maturity",
+                        "Regular fluctuations in economic activity over time",
+                        "Annual corporate planning processes",
+                        "Changes in business legislation"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is the crowding out effect?",
+                    options: [
+                        "When public investment reduces private investment",
+                        "When unemployment causes people to leave the workforce",
+                        "When immigration reduces jobs for domestic workers",
+                        "When larger companies drive smaller ones out of business"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "Which of these would most likely reduce aggregate demand?",
+                    options: [
+                        "Decreasing taxes",
+                        "Increasing government spending",
+                        "Lowering interest rates",
+                        "Reducing the money supply"
+                    ],
+                    answer: 3
+                },
+                {
+                    question: "What does CPI stand for in economics?",
+                    options: [
+                        "Cost Per Item",
+                        "Consumer Price Index",
+                        "Current Production Inventory",
+                        "Capital Production Investment"
+                    ],
+                    answer: 1
+                }
+            ],
+            international: [
+                {
+                    question: "What is comparative advantage?",
+                    options: [
+                        "The ability to produce a good using fewer resources than competitors",
+                        "The ability to produce a good at a lower opportunity cost than others",
+                        "Having an absolute advantage in production of all goods",
+                        "Having more natural resources than other countries"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is a tariff?",
+                    options: [
+                        "A government subsidy to domestic producers",
+                        "A tax on imports",
+                        "An agreement to reduce trade barriers",
+                        "A limit on the quantity of imports"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is the balance of payments?",
+                    options: [
+                        "The difference between exports and imports",
+                        "A record of all transactions between residents of a country and the rest of the world",
+                        "The government's budget surplus or deficit",
+                        "The difference between a country's saving and investment"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "Which of the following is NOT a function of the IMF?",
+                    options: [
+                        "Providing loans to countries with balance of payments problems",
+                        "Monitoring global economic developments",
+                        "Financing infrastructure projects in developing countries",
+                        "Providing technical assistance to member countries"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What is a currency peg?",
+                    options: [
+                        "When a country uses another country's currency",
+                        "A fixed exchange rate between two currencies",
+                        "When the central bank manipulates currency values",
+                        "A tax on foreign currency transactions"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What does WTO stand for?",
+                    options: [
+                        "World Trade Organization",
+                        "World Tariff Office",
+                        "World Treasury Organization",
+                        "World Tax Organization"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "What is purchasing power parity (PPP)?",
+                    options: [
+                        "The exchange rate that equalizes the price of a basket of goods across countries",
+                        "The maximum purchasing power of a currency",
+                        "A measure of income inequality within countries",
+                        "A type of exchange rate regime"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "What is a free trade agreement?",
+                    options: [
+                        "An agreement to eliminate all trade between countries",
+                        "An agreement to reduce or remove trade barriers between countries",
+                        "An agreement to use a common currency",
+                        "An agreement to harmonize tax rates"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is capital flight?",
+                    options: [
+                        "The movement of human capital (skilled workers) between countries",
+                        "The rapid outflow of capital from a country due to economic concerns",
+                        "The investment of domestic capital in foreign countries",
+                        "The transfer of physical capital between countries"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is the J-curve effect in international trade?",
+                    options: [
+                        "The gradual improvement in trade balance after a currency depreciation",
+                        "The relationship between exchange rates and interest rates",
+                        "The increase in exports following implementation of a free trade agreement",
+                        "The pattern of economic development in newly industrialized countries"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "What is a customs union?",
+                    options: [
+                        "A group of customs officers",
+                        "A free trade area with common external tariffs",
+                        "An international organization that sets tariff rates",
+                        "A trading bloc with a common currency"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is the term for a situation where a country cannot pay back its foreign debt?",
+                    options: [
+                        "Default",
+                        "Devaluation",
+                        "Deflation",
+                        "Depreciation"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "Which theory suggests that countries should specialize in producing goods where they have lower opportunity costs?",
+                    options: [
+                        "Absolute advantage theory",
+                        "Comparative advantage theory",
+                        "Heckscher-Ohlin theory",
+                        "Dependency theory"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "What is NOT a potential benefit of foreign direct investment (FDI)?",
+                    options: [
+                        "Technology transfer",
+                        "Job creation",
+                        "Guaranteed national sovereignty",
+                        "Tax revenue"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "What does an appreciation of a country's currency typically do to its exports?",
+                    options: [
+                        "Makes them more expensive for foreign buyers",
+                        "Makes them cheaper for foreign buyers",
+                        "Has no effect on export prices",
+                        "Improves their quality"
+                    ],
+                    answer: 0
+                }
+            ]
+        };
+
+        // Event Listeners
+        topicSelector.addEventListener('change', handleTopicSelection);
+        startButton.addEventListener('click', startQuiz);
+        restartButton.addEventListener('click', restartQuiz);
+        closeUpgradeButton.addEventListener('click', closeUpgradeModal);
+
+        // Disable non-clickable options
+        const disabledOptions = Array.from(topicSelector.options).filter(option => option.disabled);
+        disabledOptions.forEach(option => {
+            option.classList.add('disabled');
+            option.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                if (this.value && this.disabled) {
+                    showUpgradeModal();
+                }
+                return false;
+            });
+        });
+
+        // Functions
+        function handleTopicSelection() {
+            if (topicSelector.value) {
+                startButton.disabled = false;
+            } else {
+                startButton.disabled = true;
+            }
+        }
+
+        function showUpgradeModal() {
+            upgradeModal.style.display = 'flex';
+        }
+
+        function closeUpgradeModal() {
+            upgradeModal.style.display = 'none';
+        }
+
+        function startQuiz() {
+            // Reset quiz state
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = '0';
+            
+            // Get selected topic
+            const topic = topicSelector.value;
+            
+            // Select 10 random questions from the topic
+            const allQuestions = questionBanks[topic];
+            questions = getRandomQuestions(allQuestions, 10);
+            
+            // Hide intro, show quiz
+            quizIntro.style.display = 'none';
+            quizContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Load first question
+            loadQuestion(currentQuestion);
+        }
+
+        function getRandomQuestions(questions, count) {
+            const shuffled = [...questions].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        function loadQuestion(index) {
+            if (index >= questions.length) {
+                showResults();
+                return;
+            }
+            
+            answered = false;
+            const question = questions[index];
+            
+            // Update question counter
+            currentQuestionElement.textContent = index + 1;
+            totalQuestionsElement.textContent = questions.length;
+            
+            // Display question
+            questionElement.textContent = question.question;
+            
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            question.options.forEach((option, i) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.dataset.index = i;
+                optionElement.addEventListener('click', checkAnswer);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Start timer
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 20;
+            timerBar.style.width = '100%';
+            
+            timer = setInterval(() => {
+                timeLeft -= 0.1;
+                const percentage = (timeLeft / 20) * 100;
+                timerBar.style.width = `${percentage}%`;
+                
+                // Color changes based on time left
+                if (percentage < 30) {
+                    timerBar.style.backgroundColor = '#e74c3c'; // Red when time is running out
+                } else if (percentage < 60) {
+                    timerBar.style.backgroundColor = '#f39c12'; // Orange when at medium
+                } else {
+                    timerBar.style.backgroundColor = '#2ecc71'; // Green when plenty of time
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    if (!answered) {
+                        // Time's up - show correct answer
+                        const correctIndex = questions[currentQuestion].answer;
+                        const options = document.querySelectorAll('.option');
+                        options.forEach(option => {
+                            const optionIndex = parseInt(option.dataset.index);
+                            if (optionIndex === correctIndex) {
+                                option.classList.add('correct');
+                            }
+                            option.classList.add('disabled');
+                        });
+                        
+                        // Move to next question after delay
+                        setTimeout(() => {
+                            currentQuestion++;
+                            loadQuestion(currentQuestion);
+                        }, 1500);
+                    }
+                }
+            }, 100);
+        }
+
+        function checkAnswer(e) {
+            if (answered) return;
+            
+            answered = true;
+            clearInterval(timer);
+            
+            const selectedOption = e.target;
+            const selectedIndex = parseInt(selectedOption.dataset.index);
+            const correctIndex = questions[currentQuestion].answer;
+            
+            // Disable all options
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.classList.add('disabled');
+            });
+            
+            // Check if answer is correct
+            if (selectedIndex === correctIndex) {
+                selectedOption.classList.add('correct');
+                score++;
+                scoreElement.textContent = score;
+            } else {
+                selectedOption.classList.add('incorrect');
+                // Show correct answer
+                options[correctIndex].classList.add('correct');
+            }
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }, 1500);
+        }
+
+        function showResults() {
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            finalScoreElement.textContent = score;
+        }
+
+        function restartQuiz() {
+            resultsContainer.style.display = 'none';
+            quizIntro.style.display = 'block';
+            topicSelector.value = '';
+            startButton.disabled = true;
+        }
+        // Handle clicks on disabled dropdown options
+        topicSelector.addEventListener('mousedown', function(e) {
+            const option = e.target.closest('option');
+            if (option && option.disabled && option.value) {
+                e.preventDefault();
+                this.blur();
+                showUpgradeModal();
+                return false;
+            }
+        });
+    </script>
 </body>
 </html>
